@@ -13,7 +13,7 @@ builder.Services.AddPresentationServices();
 
 var app = builder.Build();
 
-await app.Services.EnsureDatabaseCreatedAsync();
+await app.Services.MigrateDatabaseAsync();
 
 app.UsePresentationPipeline();
 app.MapProductEndpoints();

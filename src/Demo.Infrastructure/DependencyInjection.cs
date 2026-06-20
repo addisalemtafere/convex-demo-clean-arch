@@ -14,10 +14,11 @@ public static class InfrastructureServiceRegistration
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=app.db";
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
 
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite(connectionString));
+            options.UseNpgsql(connectionString));
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddScoped<IProductRepository, ProductRepository>();
@@ -26,10 +27,10 @@ public static class InfrastructureServiceRegistration
         return services;
     }
 
-    public static async Task EnsureDatabaseCreatedAsync(this IServiceProvider services)
+    public static async Task MigrateDatabaseAsync(this IServiceProvider services)
     {
         await using var scope = services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
     }
 }
