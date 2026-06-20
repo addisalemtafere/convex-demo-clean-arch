@@ -1,16 +1,20 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => Results.Ok(new { status = "ok" }));
+app.MapGet("/", () => Results.Ok(new { status = "ok" }))
+    .WithName("HealthCheck")
+    .WithTags("Health");
 
 app.Run();
